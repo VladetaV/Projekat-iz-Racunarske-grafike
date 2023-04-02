@@ -1,0 +1,25 @@
+# ninja log v5
+5	10330	1680309361523827485	CMakeFiles/STB_IMAGE.dir/libs/stb_image.cpp.o	2a037242017045f2
+10331	10359	1680309361555828184	libSTB_IMAGE.a	86079ea443e07e7d
+10359	17205	1680309368395978186	CMakeFiles/project_base.dir/src/main.cpp.o	fafbe284fa499236
+17206	17450	1680309368647983733	libs/glad/CMakeFiles/glad.dir/src/glad.c.o	eccc4084021cb141
+17450	17461	1680309368659983997	libs/glad/libglad.a	2a62d11836ca710b
+17461	33171	1680309384360332369	libs/imgui/CMakeFiles/imgui.dir/src/imgui.cpp.o	1279ecbcb8bdf2dc
+33172	41201	1680309392396512740	libs/imgui/CMakeFiles/imgui.dir/src/imgui_demo.cpp.o	bc64f6e096729c74
+41202	51330	1680309402524741960	libs/imgui/CMakeFiles/imgui.dir/src/imgui_draw.cpp.o	dd83992816f68bfe
+51331	51847	1680309403048753873	libs/imgui/CMakeFiles/imgui.dir/src/imgui_impl_glfw.cpp.o	66834e4d39f8288e
+51848	52307	1680309403508764339	libs/imgui/CMakeFiles/imgui.dir/src/imgui_impl_opengl3.cpp.o	e62307dfe9f4afce
+52308	56715	1680309407908864644	libs/imgui/CMakeFiles/imgui.dir/src/imgui_tables.cpp.o	b2d4823ac789642b
+56717	70544	1680309421725182031	libs/imgui/CMakeFiles/imgui.dir/src/imgui_widgets.cpp.o	47f99bb58431241f
+70544	70671	1680309421845184803	libs/imgui/libimgui.a	c33101f5869b31b0
+70671	71150	1680309422349196452	../project_base	be3282c70cb1b264
+3	4519	1680452305176368892	CMakeFiles/project_base.dir/src/main.cpp.o	fafbe284fa499236
+4519	4962	1680452305620369102	../project_base	be3282c70cb1b264
+4	4393	1680452429684460679	CMakeFiles/project_base.dir/src/main.cpp.o	fafbe284fa499236
+4393	4711	1680452430000460971	../project_base	be3282c70cb1b264
+2	4170	1680453323062010847	CMakeFiles/project_base.dir/src/main.cpp.o	fafbe284fa499236
+4170	4490	1680453323378012291	../project_base	be3282c70cb1b264
+2	4525	1680454233923014888	CMakeFiles/project_base.dir/src/main.cpp.o	fafbe284fa499236
+4526	4929	1680454234331017239	../project_base	be3282c70cb1b264
+2	4539	1680454366799748103	CMakeFiles/project_base.dir/src/main.cpp.o	fafbe284fa499236
+4539	4936	1680454367199750220	../project_base	be3282c70cb1b264
