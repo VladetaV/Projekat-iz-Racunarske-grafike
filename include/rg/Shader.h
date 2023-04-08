@@ -19,6 +19,7 @@ public:
     Shader(std::string vertexShaderPath, std::string fragmentShaderPath) {
         appendShaderFolderIfNotPresent(vertexShaderPath);
         appendShaderFolderIfNotPresent(fragmentShaderPath);
+
         // build and compile our shader program
         // ------------------------------------
         // vertex shader

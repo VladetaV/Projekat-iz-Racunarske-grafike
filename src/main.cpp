@@ -27,6 +27,7 @@ void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
 unsigned int loadSkybox(vector<std::string> faces);
+unsigned int loadTexture(const char *path);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -57,8 +58,8 @@ struct ProgramState {
     bool ImGuiEnabled = false;
     Camera camera;
     bool CameraMouseMovementUpdateEnabled = true;
-    glm::vec3 backpackPosition = glm::vec3(0.0f);
-    float backpackScale = 1.0f;
+    glm::vec3 objPosition = glm::vec3(10.0f);
+    float objScale = 5.0f;
     PointLight pointLight;
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
@@ -128,7 +129,7 @@ int main() {
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetKeyCallback(window, key_callback);
     // tell GLFW to capture our mouse
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -162,8 +163,10 @@ int main() {
 
     // build and compile shaders
     // -------------------------
-    Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader earthShader("resources/shaders/earth.vs", "resources/shaders/earth.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+    Shader shader("resources/shaders/shader.vs", "resources/shaders/shader.fs");
+    Shader moonShader("resources/shaders/moon.vs", "resources/shaders/moon.fs");
 
     // temena za skybox
     float skyboxVertices[] = {
@@ -224,36 +227,49 @@ int main() {
 
     vector<std::string> faces
             {
-                    FileSystem::getPath("resources/textures/skybox/Spacebox_right.png"),
-                    FileSystem::getPath("resources/textures/skybox/Spacebox_left.png"),
-                    FileSystem::getPath("resources/textures/skybox/Spacebox_top.png"),
-                    FileSystem::getPath("resources/textures/skybox/Spacebox_bottom.png"),
-                    FileSystem::getPath("resources/textures/skybox/Spacebox_front.png"),
-                    FileSystem::getPath("resources/textures/skybox/Spacebox_back.png")
+                    FileSystem::getPath("resources/textures/skybox/SkyBlue2_right1.png"),
+                    FileSystem::getPath("resources/textures/skybox/SkyBlue2_left2.png"),
+                    FileSystem::getPath("resources/textures/skybox/SkyBlue2_bottom4.png"),
+                    FileSystem::getPath("resources/textures/skybox/SkyBlue2_top3.png"),
+                    FileSystem::getPath("resources/textures/skybox/SkyBlue2_front5.png"),
+                    FileSystem::getPath("resources/textures/skybox/SkyBlue2_back6.png")
             };
     unsigned int cubemapTexture = loadSkybox(faces);
+    unsigned int sunTex = loadTexture("resources/objects/sun/13913_Sun_diff.jpg");
 
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
 
 
 
+    earthShader.setInt("earth", 1);
+    earthShader.use();
+
+    moonShader.setInt("moon", 2);
+    moonShader.use();
+
+    shader.setInt("tex", 3);
+    shader.use();
     // load models
     // -----------
-    /*
-    Model ourModel("resources/objects/backpack/backpack.obj");
-    ourModel.SetShaderTextureNamePrefix("material.");
+
+    Model sunModel("resources/objects/sun/moon.obj");
+    Model moonModel("resources/objects/moon/moon.obj");
+    Model earthModel("resources/objects/Earth/Earth_2K.obj");
+    moonModel.SetShaderTextureNamePrefix("material.");
+    sunModel.SetShaderTextureNamePrefix("material.");
+    earthModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
-    pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
+    pointLight.position = glm::vec3(-7.0f,14.5f,35.0f);
+    pointLight.ambient = glm::vec3(1.2, 1.2, 1.2);
+    pointLight.diffuse = glm::vec3(50.0, 50.0, 50.0);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
     pointLight.quadratic = 0.032f;
-    */
+
 
 
     // draw in wireframe
@@ -277,34 +293,95 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // don't forget to enable shader before setting uniforms
-        /*
-        ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
-        ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        ourShader.setVec3("pointLight.specular", pointLight.specular);
-        ourShader.setFloat("pointLight.constant", pointLight.constant);
-        ourShader.setFloat("pointLight.linear", pointLight.linear);
-        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-        ourShader.setVec3("viewPosition", programState->camera.Position);
-        ourShader.setFloat("material.shininess", 32.0f);
+        // --------------- earthShader----------------------------------------------------
+
+        earthShader.use();
+        earthShader.setVec3("pointLight.position", pointLight.position);
+        earthShader.setVec3("pointLight.ambient", pointLight.ambient);
+        earthShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        earthShader.setVec3("pointLight.specular", pointLight.specular);
+        earthShader.setFloat("pointLight.constant", pointLight.constant);
+        earthShader.setFloat("pointLight.linear", pointLight.linear);
+        earthShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        earthShader.setVec3("viewPosition", programState->camera.Position);
+        earthShader.setFloat("material.shininess", 32.0f);
+
+        // ---------------------shader---------------------------------------------------------
+        shader.use();
+        shader.setVec3("pointLight.position", pointLight.position);
+        shader.setVec3("pointLight.ambient", pointLight.ambient);
+        shader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        shader.setVec3("pointLight.specular", pointLight.specular);
+        shader.setFloat("pointLight.constant", pointLight.constant);
+        shader.setFloat("pointLight.linear", pointLight.linear);
+        shader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        shader.setVec3("viewPosition", programState->camera.Position);
+        shader.setFloat("material.shininess", 32.0f);
+
+
+
+
+
+        // -----------------moonShader --------------------------------------------
+        moonShader.use();
+        moonShader.setVec3("pointLight.position", pointLight.position);
+        moonShader.setVec3("pointLight.ambient", pointLight.ambient);
+        moonShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        moonShader.setVec3("pointLight.specular", pointLight.specular);
+        moonShader.setFloat("pointLight.constant", pointLight.constant);
+        moonShader.setFloat("pointLight.linear", pointLight.linear);
+        moonShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+        moonShader.setVec3("viewPosition", programState->camera.Position);
+        moonShader.setFloat("material.shininess", 32.0f);
+
+
+
         // view/projection transformations
-         */
+
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
-        //ourShader.setMat4("projection", projection);
-        //ourShader.setMat4("view", view);
+        
+        earthShader.use();
+        earthShader.setMat4("projection", projection);
+        earthShader.setMat4("view", view);
+
+        shader.use();
+        shader.setMat4("projection", projection);
+        shader.setMat4("view", view);
+
+        moonShader.use();
+        moonShader.setMat4("projection", projection);
+        moonShader.setMat4("view", view);
 
         // render the loaded model
-        //glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::translate(model,
-             //                  programState->backpackPosition); // translate it down so it's at the center of the scene
-        //model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
-        //ourShader.setMat4("model", model);
-        //ourModel.Draw(ourShader);
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model2 = glm::mat4(1.0f);
+        glm::mat4 model3 = glm::mat4(1.0f);
+
+
+
+        earthShader.use();
+        model3 = glm::translate(model3,glm::vec3(0.5f ,15.5f,3.0f ));
+        model3 = glm::scale(model3,glm::vec3(1.0f));
+        earthShader.setMat4("model3", model3);
+        earthModel.Draw(earthShader);
+
+        moonShader.use();
+        model2 = glm::translate(model2,glm::vec3(2.0f * cos(currentFrame) * 4,14.5f ,2.0f * sin(currentFrame) * 4));
+        model2 = glm::scale(model2,glm::vec3(1.0f));
+        moonShader.setMat4("model2", model2);
+        moonModel.Draw(moonShader);
+
+        shader.use();
+        model = glm::translate(model, glm::vec3(-3.0f,8.5f,45.0f));
+        model = glm::scale(model, glm::vec3(9.0f));
+        shader.setMat4("model", model);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, sunTex);
+        sunModel.Draw(shader);
+
+
 
 
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -403,8 +480,8 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Text("Hello text");
         ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
         ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-        ImGui::DragFloat3("Backpack position", (float*)&programState->backpackPosition);
-        ImGui::DragFloat("Backpack scale", &programState->backpackScale, 0.05, 0.1, 4.0);
+        ImGui::DragFloat3("Backpack position", (float*)&programState->objPosition);
+        ImGui::DragFloat("Backpack scale", &programState->objScale, 0.05, 0.1, 4.0);
 
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
@@ -433,7 +510,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             programState->CameraMouseMovementUpdateEnabled = false;
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         } else {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
     }
 }
@@ -459,11 +536,51 @@ unsigned int loadSkybox(vector<std::string> faces)
             stbi_image_free(data);
         }
     }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+
+    return textureID;
+}
+
+
+unsigned int loadTexture(char const * path)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
 
     return textureID;
 }
