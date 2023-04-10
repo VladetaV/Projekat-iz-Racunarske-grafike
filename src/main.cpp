@@ -157,9 +157,12 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-    // configure global opengl state
-    // -----------------------------
+    // DEPTH TESTING
     glEnable(GL_DEPTH_TEST);
+
+    // FACE CULLING
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     // build and compile shaders
     // -------------------------
@@ -237,9 +240,8 @@ int main() {
     unsigned int cubemapTexture = loadSkybox(faces);
     unsigned int sunTex = loadTexture("resources/objects/sun/13913_Sun_diff.jpg");
 
-    skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
-
+    skyboxShader.use();
 
 
     earthShader.setInt("earth", 1);
@@ -253,7 +255,7 @@ int main() {
     // load models
     // -----------
 
-    Model sunModel("resources/objects/sun/moon.obj");
+    Model sunModel("resources/objects/sun/Earth_2K.obj");
     Model moonModel("resources/objects/moon/moon.obj");
     Model earthModel("resources/objects/Earth/Earth_2K.obj");
     moonModel.SetShaderTextureNamePrefix("material.");
@@ -306,9 +308,29 @@ int main() {
         earthShader.setVec3("viewPosition", programState->camera.Position);
         earthShader.setFloat("material.shininess", 32.0f);
 
+        earthShader.setVec3("dirLight1.direction", -0.2f, -1.0f, -0.3f);
+        earthShader.setVec3("dirLight1.ambient", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight1.diffuse", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight1.specular", 0.005f, 0.005f, 0.005f);
+
+        earthShader.setVec3("dirLight2.direction", 0.2f, -1.0f, -0.3f);
+        earthShader.setVec3("dirLight2.ambient", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight2.diffuse", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight2.specular", 0.005f, 0.005f, 0.005f);
+
+        earthShader.setVec3("dirLight3.direction", -0.2f, 1.0f, -0.3f);
+        earthShader.setVec3("dirLight3.ambient", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight3.diffuse", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight3.specular", 0.005f, 0.005f, 0.005f);
+
+        earthShader.setVec3("dirLight4.direction", 0.2f, 1.0f, -0.3f);
+        earthShader.setVec3("dirLight4.ambient", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight4.diffuse", 0.005f, 0.005f, 0.005f);
+        earthShader.setVec3("dirLight4.specular", 0.005f, 0.005f, 0.005f);
+
         // ---------------------shader---------------------------------------------------------
         shader.use();
-        shader.setVec3("pointLight.position", pointLight.position);
+        /*shader.setVec3("pointLight.position", pointLight.position);
         shader.setVec3("pointLight.ambient", pointLight.ambient);
         shader.setVec3("pointLight.diffuse", pointLight.diffuse);
         shader.setVec3("pointLight.specular", pointLight.specular);
@@ -317,10 +339,10 @@ int main() {
         shader.setFloat("pointLight.quadratic", pointLight.quadratic);
         shader.setVec3("viewPosition", programState->camera.Position);
         shader.setFloat("material.shininess", 32.0f);
+*/
 
-
-
-
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, sunTex);
 
         // -----------------moonShader --------------------------------------------
         moonShader.use();
@@ -334,7 +356,25 @@ int main() {
         moonShader.setVec3("viewPosition", programState->camera.Position);
         moonShader.setFloat("material.shininess", 32.0f);
 
+        moonShader.setVec3("dirLight1.direction", -0.2f, -1.0f, -0.3f);
+        moonShader.setVec3("dirLight1.ambient", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight1.diffuse", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight1.specular", 0.005f, 0.005f, 0.005f);
 
+        moonShader.setVec3("dirLight2.direction", 0.2f, -1.0f, -0.3f);
+        moonShader.setVec3("dirLight2.ambient", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight2.diffuse", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight2.specular", 0.005f, 0.005f, 0.005f);
+
+        moonShader.setVec3("dirLight3.direction", -0.2f, 1.0f, -0.3f);
+        moonShader.setVec3("dirLight3.ambient", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight3.diffuse", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight3.specular", 0.005f, 0.005f, 0.005f);
+
+        moonShader.setVec3("dirLight4.direction", 0.2f, 1.0f, -0.3f);
+        moonShader.setVec3("dirLight4.ambient", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight4.diffuse", 0.005f, 0.005f, 0.005f);
+        moonShader.setVec3("dirLight4.specular", 0.005f, 0.005f, 0.005f);
 
         // view/projection transformations
 
@@ -355,33 +395,32 @@ int main() {
         moonShader.setMat4("view", view);
 
         // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 model2 = glm::mat4(1.0f);
-        glm::mat4 model3 = glm::mat4(1.0f);
-
 
 
         earthShader.use();
-        model3 = glm::translate(model3,glm::vec3(0.5f ,15.5f,3.0f ));
+
+        glm::mat4 model3 = glm::mat4(1.0f);
+        model3 = glm::translate(model3,glm::vec3(0.5f ,15.5f,3.0f));
         model3 = glm::scale(model3,glm::vec3(1.0f));
+        model3 = glm::rotate(model3,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
+        model3 = glm::rotate(model3,(float)glfwGetTime()/2,glm::vec3(0.0f,1.0f,0.0f));
         earthShader.setMat4("model3", model3);
         earthModel.Draw(earthShader);
 
         moonShader.use();
-        model2 = glm::translate(model2,glm::vec3(2.0f * cos(currentFrame) * 4,14.5f ,2.0f * sin(currentFrame) * 4));
+        glm::mat4 model2 = glm::mat4(1.0f);
+        model2 = glm::translate(model2,glm::vec3(-2.0f * cos(currentFrame) * 4,14.5f ,-2.0f * sin(currentFrame) * 4));
         model2 = glm::scale(model2,glm::vec3(1.0f));
         moonShader.setMat4("model2", model2);
         moonModel.Draw(moonShader);
 
         shader.use();
-        model = glm::translate(model, glm::vec3(-3.0f,8.5f,45.0f));
-        model = glm::scale(model, glm::vec3(9.0f));
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-28.0f,8.5f,75.0f));
+        model = glm::scale(model, glm::vec3(5.0f));
+        model = glm::rotate(model,(float)glfwGetTime()/4, glm::vec3(0.0f,1.0f,0.0f));
         shader.setMat4("model", model);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, sunTex);
         sunModel.Draw(shader);
-
-
 
 
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -569,8 +608,8 @@ unsigned int loadTexture(char const * path)
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,format == GL_RGBA ? GL_CLAMP_TO_EDGE :  GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE :  GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
