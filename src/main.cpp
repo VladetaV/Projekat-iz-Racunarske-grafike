@@ -238,7 +238,7 @@ int main() {
                     FileSystem::getPath("resources/textures/skybox/SkyBlue2_back6.png")
             };
     unsigned int cubemapTexture = loadSkybox(faces);
-    unsigned int sunTex = loadTexture("resources/objects/sun/13913_Sun_diff.jpg");
+    //unsigned int sunTex = loadTexture("resources/objects/sun/13913_Sun_diff.jpg");
 
     skyboxShader.setInt("skybox", 0);
     skyboxShader.use();
@@ -341,8 +341,8 @@ int main() {
         shader.setFloat("material.shininess", 32.0f);
 */
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, sunTex);
+       // glActiveTexture(GL_TEXTURE1);
+       // glBindTexture(GL_TEXTURE_2D, sunTex);
 
         // -----------------moonShader --------------------------------------------
         moonShader.use();
@@ -397,19 +397,19 @@ int main() {
         // render the loaded model
 
 
-        earthShader.use();
 
+        earthShader.use();
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3,glm::vec3(0.5f ,15.5f,3.0f));
         model3 = glm::scale(model3,glm::vec3(1.0f));
         model3 = glm::rotate(model3,glm::radians(180.0f),glm::vec3(1.0f,0.0f,0.0f));
-        model3 = glm::rotate(model3,(float)glfwGetTime()/2,glm::vec3(0.0f,1.0f,0.0f));
+        model3 = glm::rotate(model3,-(float)glfwGetTime()/2,glm::vec3(0.0f,1.0f,0.0f));
         earthShader.setMat4("model3", model3);
         earthModel.Draw(earthShader);
 
         moonShader.use();
         glm::mat4 model2 = glm::mat4(1.0f);
-        model2 = glm::translate(model2,glm::vec3(-2.0f * cos(currentFrame) * 4,14.5f ,-2.0f * sin(currentFrame) * 4));
+        model2 = glm::translate(model2,glm::vec3(-2.0f * cos(currentFrame/8) * 4,14.5f ,-2.0f * sin(currentFrame/8) * 4));
         model2 = glm::scale(model2,glm::vec3(1.0f));
         moonShader.setMat4("model2", model2);
         moonModel.Draw(moonShader);
@@ -418,7 +418,7 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-28.0f,8.5f,75.0f));
         model = glm::scale(model, glm::vec3(5.0f));
-        model = glm::rotate(model,(float)glfwGetTime()/4, glm::vec3(0.0f,1.0f,0.0f));
+        model = glm::rotate(model,(float)glfwGetTime()/8, glm::vec3(0.0f,1.0f,0.0f));
         shader.setMat4("model", model);
         sunModel.Draw(shader);
 
