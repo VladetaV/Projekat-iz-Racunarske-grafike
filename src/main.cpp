@@ -170,7 +170,7 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader shader("resources/shaders/shader.vs", "resources/shaders/shader.fs");
     Shader moonShader("resources/shaders/moon.vs", "resources/shaders/moon.fs");
-
+    Shader cdShader("resources/shaders/cd.vs","resources/shaders/cd.fs");
     // temena za skybox
     float skyboxVertices[] = {
             // positions
@@ -252,15 +252,20 @@ int main() {
 
     shader.setInt("tex", 3);
     shader.use();
+
+    cdShader.setInt("cd",4);
+    cdShader.use();
     // load models
     // -----------
 
     Model sunModel("resources/objects/sun/Earth_2K.obj");
     Model moonModel("resources/objects/moon/moon.obj");
     Model earthModel("resources/objects/Earth/Earth_2K.obj");
+    Model cdModel("resources/objects/cosmic_dust/Cloud_Polygon_Blender_1.obj");
     moonModel.SetShaderTextureNamePrefix("material.");
     sunModel.SetShaderTextureNamePrefix("material.");
     earthModel.SetShaderTextureNamePrefix("material.");
+    cdModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(-7.0f,14.5f,35.0f);
@@ -422,6 +427,10 @@ int main() {
         shader.setMat4("model", model);
         sunModel.Draw(shader);
 
+        cdShader.use();
+        cdShader.setMat4("projection", projection);
+        cdShader.setMat4("view", view);
+
 
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
@@ -435,6 +444,25 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
+
+        // BLENDING
+        // iskljucujemo Face CULLING jer kada nam se kosmicka prasina providi, a ne iscrtava nam se skybox
+        // zbog Face CULLINGA, kosmicka prasina nam bude zelena jer je onda sam skybox zelen jer se ustvari
+        // ne iscrtava
+        glDisable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        cdShader.use();
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(16.0f,18.0f,-12.0f));
+        model = glm::scale(model,glm::vec3(10.0f));
+        cdShader.setMat4("model", model);
+        cdModel.Draw(cdShader);
+
+        glDisable(GL_BLEND);
+        glEnable(GL_CULL_FACE);
+
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
