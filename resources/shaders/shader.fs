@@ -7,7 +7,7 @@ in vec3 FragPos;
 
 uniform sampler2D tex;
 
-// sejder za Sunce ne treba da radi nista sem da vraca boju onakva kakva je u teksturi jer je Sunce sam izvor svetlosti
+// Sejder za Sunce ne treba da radi nista sem da vraca boju onakva kakva je u teksturi jer je Sunce sam izvor svetlosti
 // i njegova boja ne zavisi ni od kakvog izvora svetlosti
 
 void main()

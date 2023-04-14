@@ -255,6 +255,10 @@ int main() {
 
     cdShader.setInt("cd",4);
     cdShader.use();
+
+
+
+
     // load models
     // -----------
 
@@ -300,6 +304,7 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         // --------------- earthShader----------------------------------------------------
 
         earthShader.use();
@@ -333,21 +338,6 @@ int main() {
         earthShader.setVec3("dirLight4.diffuse", 0.005f, 0.005f, 0.005f);
         earthShader.setVec3("dirLight4.specular", 0.005f, 0.005f, 0.005f);
 
-        // ---------------------shader---------------------------------------------------------
-        shader.use();
-        /*shader.setVec3("pointLight.position", pointLight.position);
-        shader.setVec3("pointLight.ambient", pointLight.ambient);
-        shader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        shader.setVec3("pointLight.specular", pointLight.specular);
-        shader.setFloat("pointLight.constant", pointLight.constant);
-        shader.setFloat("pointLight.linear", pointLight.linear);
-        shader.setFloat("pointLight.quadratic", pointLight.quadratic);
-        shader.setVec3("viewPosition", programState->camera.Position);
-        shader.setFloat("material.shininess", 32.0f);
-*/
-
-       // glActiveTexture(GL_TEXTURE1);
-       // glBindTexture(GL_TEXTURE_2D, sunTex);
 
         // -----------------moonShader --------------------------------------------
         moonShader.use();
@@ -400,8 +390,6 @@ int main() {
         moonShader.setMat4("view", view);
 
         // render the loaded model
-
-
 
         earthShader.use();
         glm::mat4 model3 = glm::mat4(1.0f);
@@ -466,7 +454,6 @@ int main() {
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
-
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -651,3 +638,4 @@ unsigned int loadTexture(char const * path)
 
     return textureID;
 }
+
