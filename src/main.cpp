@@ -171,6 +171,7 @@ int main() {
     Shader shader("resources/shaders/shader.vs", "resources/shaders/shader.fs");
     Shader moonShader("resources/shaders/moon.vs", "resources/shaders/moon.fs");
     Shader cdShader("resources/shaders/cd.vs","resources/shaders/cd.fs");
+
     // temena za skybox
     float skyboxVertices[] = {
             // positions
@@ -237,12 +238,11 @@ int main() {
                     FileSystem::getPath("resources/textures/skybox/SkyBlue2_front5.png"),
                     FileSystem::getPath("resources/textures/skybox/SkyBlue2_back6.png")
             };
+
     unsigned int cubemapTexture = loadSkybox(faces);
-    //unsigned int sunTex = loadTexture("resources/objects/sun/13913_Sun_diff.jpg");
 
     skyboxShader.setInt("skybox", 0);
     skyboxShader.use();
-
 
     earthShader.setInt("earth", 1);
     earthShader.use();
@@ -258,10 +258,8 @@ int main() {
 
 
 
-
     // load models
     // -----------
-
     Model sunModel("resources/objects/sun/Earth_2K.obj");
     Model moonModel("resources/objects/moon/moon.obj");
     Model earthModel("resources/objects/Earth/Earth_2K.obj");
@@ -271,10 +269,12 @@ int main() {
     earthModel.SetShaderTextureNamePrefix("material.");
     cdModel.SetShaderTextureNamePrefix("material.");
 
+    // pointlight settings
+    // -------------------
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(-7.0f,14.5f,35.0f);
-    pointLight.ambient = glm::vec3(1.2, 1.2, 1.2);
-    pointLight.diffuse = glm::vec3(50.0, 50.0, 50.0);
+    pointLight.position = glm::vec3(-3.0f,14.5f,35.0f);
+    pointLight.ambient = glm::vec3(0.5, 0.5, 0.5);
+    pointLight.diffuse = glm::vec3(55.0, 55.0, 55.0);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
     pointLight.constant = 1.0f;
@@ -282,8 +282,6 @@ int main() {
     pointLight.quadratic = 0.032f;
 
 
-
-    // draw in wireframe
 
     // render loop
     // -----------
@@ -306,7 +304,6 @@ int main() {
 
 
         // --------------- earthShader----------------------------------------------------
-
         earthShader.use();
         earthShader.setVec3("pointLight.position", pointLight.position);
         earthShader.setVec3("pointLight.ambient", pointLight.ambient);
@@ -372,7 +369,7 @@ int main() {
         moonShader.setVec3("dirLight4.specular", 0.005f, 0.005f, 0.005f);
 
         // view/projection transformations
-
+        // -------------------------------
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
@@ -390,7 +387,7 @@ int main() {
         moonShader.setMat4("view", view);
 
         // render the loaded model
-
+        // -----------------------
         earthShader.use();
         glm::mat4 model3 = glm::mat4(1.0f);
         model3 = glm::translate(model3,glm::vec3(0.5f ,15.5f,3.0f));
@@ -409,7 +406,7 @@ int main() {
 
         shader.use();
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-28.0f,8.5f,75.0f));
+        model = glm::translate(model, glm::vec3(-28.0f,11.5f,75.0f));
         model = glm::scale(model, glm::vec3(5.0f));
         model = glm::rotate(model,(float)glfwGetTime()/8, glm::vec3(0.0f,1.0f,0.0f));
         shader.setMat4("model", model);
@@ -421,11 +418,16 @@ int main() {
 
 
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+
+        // skybox drawing
+        // --------------
         skyboxShader.use();
         view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
+
         // skybox cube
+        // -----------
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
@@ -441,6 +443,8 @@ int main() {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+        // cosmic dust drawing
+        // -------------------
         cdShader.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(16.0f,18.0f,-12.0f));
@@ -448,6 +452,7 @@ int main() {
         cdShader.setMat4("model", model);
         cdModel.Draw(cdShader);
 
+        // turn off BLENDING and return settings for FACE CULLING
         glDisable(GL_BLEND);
         glEnable(GL_CULL_FACE);
 
